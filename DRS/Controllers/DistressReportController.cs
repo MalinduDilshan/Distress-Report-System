@@ -14,7 +14,7 @@ namespace DRS.Controllers
             DistressReportControllerManager = new DistressReportControllerManager();
         }
 
-        [Authorize(Roles ="Admin,User")]
+        [Authorize(Roles = "Admin,User")]
         // GET: DistressReport
         public ActionResult Index(string SearchText)
         {
@@ -40,7 +40,7 @@ namespace DRS.Controllers
             }
             catch (Exception)
             {
-                return RedirectToAction("Error", "Home", new { error = "GET/DistressReport/Details/int" });
+                return RedirectToAction("Error", "Home", new { error = "GET/DistressReport/Details" });
             }
         }
 
@@ -116,7 +116,7 @@ namespace DRS.Controllers
                 ViewBag.LattitudeDirections = DistressReportControllerManager.getLattitudeDirectionsSelectList();
                 ViewBag.LongitudeDirections = DistressReportControllerManager.getLongitudeDirectionsSelectList();
 
-                return View(new d_detail() { vessel_id = id, d_detail_action_taken = "No Action Taken", d_detail_remarks = "No Remarks", d_detail_no_of_crew = 0  });
+                return View(new d_detail() { vessel_id = id, d_detail_action_taken = "No Action Taken", d_detail_remarks = "No Remarks", d_detail_no_of_crew = 0 });
             }
             catch (Exception)
             {
@@ -150,7 +150,7 @@ namespace DRS.Controllers
             }
             catch (Exception)
             {
-                return RedirectToAction("Error", "Home", new { error = "POST/DistressReport/CreateVessel" });
+                return RedirectToAction("Error", "Home", new { error = "POST/DistressReport/Create" });
             }
         }
 
@@ -169,7 +169,7 @@ namespace DRS.Controllers
             }
             catch (Exception)
             {
-                return RedirectToAction("Error", "Home", new { error = "GET/DistressReport/Edit/int" });
+                return RedirectToAction("Error", "Home", new { error = "GET/DistressReport/Edit" });
             }
         }
 
@@ -199,7 +199,7 @@ namespace DRS.Controllers
             }
             catch (Exception)
             {
-                return RedirectToAction("Error", "Home", new { error = "POST/DistressReport/Edit/int" });
+                return RedirectToAction("Error", "Home", new { error = "POST/DistressReport/Edit" });
             }
         }
 
@@ -216,7 +216,7 @@ namespace DRS.Controllers
             }
             catch (Exception)
             {
-                return RedirectToAction("Error", "Home", new { error = "GET/DistressReport/Delete/int" });
+                return RedirectToAction("Error", "Home", new { error = "GET/DistressReport/Delete" });
             }
         }
 
@@ -233,7 +233,7 @@ namespace DRS.Controllers
             }
             catch (Exception)
             {
-                return RedirectToAction("Error", "Home", new { error = "POST/DistressReport/Delete/int" });
+                return RedirectToAction("Error", "Home", new { error = "POST/DistressReport/Delete" });
             }
         }
 
@@ -250,7 +250,7 @@ namespace DRS.Controllers
             }
             catch (Exception)
             {
-                return RedirectToAction("Error", "Home", new { error = "GET/DistressReport/Action/int" });
+                return RedirectToAction("Error", "Home", new { error = "GET/DistressReport/Action" });
             }
         }
 
@@ -278,7 +278,7 @@ namespace DRS.Controllers
             }
             catch (Exception)
             {
-                return RedirectToAction("Error", "Home", new { error = "POST/DistressReport/Action/int" });
+                return RedirectToAction("Error", "Home", new { error = "POST/DistressReport/Action" });
             }
         }
 
@@ -290,7 +290,7 @@ namespace DRS.Controllers
             {
                 return View(id);
             }
-            catch
+            catch (Exception)
             {
                 return RedirectToAction("Error", "Home", new { error = "GET/DistressReport/Report" });
             }
@@ -301,14 +301,22 @@ namespace DRS.Controllers
         [HttpPost]
         public ActionResult Report(int id, string report, string radioOfficer, string dutyOfficer)
         {
+            owner owner = null;
             try
             {
+                owner = DistressReportControllerManager.getgetOwnerForFax(id);
+
                 ViewBag.report = report;
                 ViewBag.radioOfficer = radioOfficer;
                 ViewBag.dutyOfficer = dutyOfficer;
+
+                ViewBag.ownerName = owner.owner_name;
+                ViewBag.ownerAddress = owner.owner_address;
+                ViewBag.ownerTele = owner.owner_tele;
+
                 return new Rotativa.ViewAsPdf("DistressReportPDF", DistressReportControllerManager.getDistressReport(id)) { FileName = "FAX MESSAGE.pdf" };
             }
-            catch
+            catch (Exception)
             {
                 return RedirectToAction("Error", "Home", new { error = "POST/DistressReport/Report" });
             }

@@ -25,9 +25,9 @@ namespace DRS.Services.DistressReportService
             {
                 if (!string.IsNullOrEmpty(SearchText))
                 {
-                    distressReport.Add(db.d_detail.Where(d => d.vessel.registration.registration_code.Contains(SearchText.Substring(0, 7))
+                    distressReport = db.d_detail.Where(d => d.vessel.registration.registration_code.Contains(SearchText.Substring(0, 7))
                     && d.vessel.vessel_no.Contains(SearchText.Substring(7, 4)) && d.vessel.district.district_code.Contains(SearchText.Substring(11, 3))
-                    && d.d_detail_status == 1).FirstOrDefault());
+                    && d.d_detail_status == 1).ToList();
                 }
                 else
                 {
@@ -71,7 +71,7 @@ namespace DRS.Services.DistressReportService
                 && v.vessel_status == 1).FirstOrDefault();
 
                 //Vessel is not exist
-                if (getVesselObject == null) 
+                if (getVesselObject == null)
                 {
                     db.vessel_owner_ref.Add(vessel_owner_ref);  //Save vessel and owner
                     db.SaveChanges();
@@ -169,7 +169,26 @@ namespace DRS.Services.DistressReportService
             {
                 throw;
             }
-            return vesselOwner; 
+            return vesselOwner;
+        }
+
+        //get owner data to Fax Message
+        public owner getOwnerForFaxDB(int distressReportId)
+        {
+            d_detail d_detail = null;
+            vessel_owner_ref vessel_owner_ref = null;
+            owner owner = null;
+            try
+            {
+                d_detail = db.d_detail.Where(d => d.d_detail_id == distressReportId).FirstOrDefault();
+                vessel_owner_ref = db.vessel_owner_ref.Where(vor => vor.vessel_id == d_detail.vessel_id).FirstOrDefault();
+                owner = db.owners.Where(o => o.owner_id == vessel_owner_ref.owner_id && o.owner_status == 1).FirstOrDefault();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            return owner;
         }
 
         //set*Distress
